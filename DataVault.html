@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DataVault — Personal Data Center</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f0;color:#1a1a1a;min-height:100vh}
+.hidden{display:none!important}
+.app{max-width:700px;margin:0 auto;background:#fff;min-height:100vh;box-shadow:0 0 40px rgba(0,0,0,0.08)}
+.btn{padding:8px 16px;border-radius:8px;border:1px solid #ddd;background:#fff;color:#1a1a1a;font-size:13px;cursor:pointer;transition:all 0.15s;font-family:inherit}
+.btn:hover{background:#f5f5f0}
+.btn.primary{border-color:#aaa;font-weight:500}
+.btn.danger{border-color:#fca5a5;color:#dc2626}
+.btn.danger:hover{background:#fef2f2}
+.btn.sm{padding:5px 10px;font-size:12px}
+.btn.full{width:100%}
+.field{margin-bottom:13px}
+.field label{display:block;font-size:12px;color:#666;margin-bottom:4px;font-weight:500}
+.field input,.field textarea,.field select{width:100%;padding:9px 11px;border:1px solid #e2e2e2;border-radius:8px;background:#fff;color:#1a1a1a;font-size:13px;font-family:inherit;outline:none;transition:border-color 0.15s}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:#888}
+.field textarea{resize:vertical;min-height:90px}
+.err{color:#dc2626;font-size:12px;margin-top:6px}
+/* Nav */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid #ececec;background:#fff;position:sticky;top:0;z-index:10}
+.nav-brand{font-weight:600;font-size:15px;display:flex;align-items:center;gap:8px;color:#1a1a1a}
+.avatar{width:32px;height:32px;border-radius:50%;background:#dbeafe;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
+/* Auth */
+.auth-wrap{max-width:360px;margin:40px auto;padding:24px}
+.auth-logo{text-align:center;margin-bottom:24px}
+.auth-logo i{font-size:36px;color:#6366f1}
+.auth-logo h1{font-size:22px;font-weight:600;margin-top:8px}
+.auth-logo p{font-size:13px;color:#666;margin-top:4px}
+.tab-row{display:flex;border-bottom:1px solid #ececec;margin-bottom:20px}
+.tab{padding:9px 16px;font-size:13px;cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;color:#888;font-family:inherit;transition:all 0.15s}
+.tab.active{border-bottom-color:#1a1a1a;color:#1a1a1a;font-weight:500}
+.admin-note{background:#fef9f0;border:1px solid #fed7aa;border-radius:8px;padding:10px 12px;font-size:12px;color:#92400e;margin-bottom:14px;display:flex;align-items:center;gap:6px}
+/* Screen */
+.screen{padding:20px}
+/* Metrics */
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:22px}
+.metric{background:#f9f9f7;border-radius:8px;padding:12px 14px}
+.metric .mlabel{font-size:11px;color:#888;margin-bottom:3px;font-weight:500}
+.metric .mval{font-size:22px;font-weight:600;color:#1a1a1a}
+/* Item list */
+.item-row{display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-bottom:1px solid #f0f0f0}
+.item-row:last-child{border-bottom:none}
+.item-ico{font-size:18px;color:#888;margin-top:2px;flex-shrink:0;width:20px;text-align:center}
+.item-meta{flex:1;min-width:0}
+.item-title{font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item-sub{font-size:11px;color:#888;margin-top:2px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.item-preview{font-size:12px;color:#666;margin-top:5px;max-height:50px;overflow:hidden;line-height:1.5}
+.item-img-thumb{height:50px;border-radius:6px;display:block;margin-top:5px;border:1px solid #f0f0f0}
+.item-actions{display:flex;gap:5px;flex-shrink:0}
+/* Tags */
+.tag{display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:500}
+.tag.note{background:#dbeafe;color:#1e40af}
+.tag.link{background:#fef3c7;color:#92400e}
+.tag.image{background:#ede9fe;color:#5b21b6}
+.tag.file{background:#d1fae5;color:#065f46}
+.tag.data{background:#fee2e2;color:#991b1b}
+/* Upload zone */
+.upload-zone{border:2px dashed #ddd;border-radius:10px;padding:24px;text-align:center;cursor:pointer;transition:all 0.15s}
+.upload-zone:hover,.upload-zone.drag{border-color:#888;background:#f9f9f7}
+.upload-zone i{font-size:28px;color:#bbb;display:block;margin-bottom:8px}
+.upload-zone .uz-title{font-size:13px;color:#666;margin-bottom:3px}
+.upload-zone .uz-sub{font-size:11px;color:#aaa}
+.file-chip{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f5f5f0;border-radius:8px;margin-top:10px;font-size:12px;color:#555}
+/* Modal */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:flex-start;justify-content:center;z-index:100;padding:40px 12px;overflow-y:auto}
+.modal{background:#fff;border-radius:12px;padding:22px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,0.2)}
+.modal h2{font-size:16px;font-weight:600;margin-bottom:16px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+/* Admin */
+.admin-badge{background:#fef2f2;color:#dc2626;font-size:10px;padding:3px 9px;border-radius:6px;font-weight:600;letter-spacing:0.5px}
+.user-section{border:1px solid #ececec;border-radius:10px;margin-bottom:10px;overflow:hidden}
+.user-hdr{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;transition:background 0.1s;user-select:none}
+.user-hdr:hover{background:#f9f9f7}
+.user-body{padding:12px 14px;border-top:1px solid #ececec;display:none}
+.user-body.open{display:block}
+.adm-item-row{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid #f5f5f5}
+.adm-item-row:last-child{border-bottom:none}
+.log-wrap{border:1px solid #ececec;border-radius:10px;padding:12px;max-height:220px;overflow-y:auto}
+.log-entry{display:flex;gap:10px;padding:3px 0;font-size:12px;border-bottom:1px solid #f8f8f8}
+.log-entry:last-child{border-bottom:none}
+.log-time{color:#aaa;flex-shrink:0;min-width:70px}
+/* View modal */
+.vm-image{max-width:100%;border-radius:8px;display:block}
+.vm-content{background:#f9f9f7;border-radius:8px;padding:12px;font-size:13px;line-height:1.7;white-space:pre-wrap;word-break:break-word;max-height:300px;overflow-y:auto;color:#333}
+.vm-link{color:#1d4ed8;word-break:break-all;font-size:13px}
+.section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.section-title{font-size:15px;font-weight:600}
+.empty-state{text-align:center;padding:40px 20px;color:#aaa}
+.empty-state i{font-size:32px;display:block;margin-bottom:8px}
+.empty-state p{font-size:13px}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- AUTH -->
+<div id="s-auth">
+  <div class="auth-wrap">
+    <div class="auth-logo">
+      <i class="ti ti-database"></i>
+      <h1>DataVault</h1>
+      <p>Your personal, private data center</p>
+    </div>
+    <div class="tab-row">
+      <button class="tab active" onclick="authTab('login')">Sign in</button>
+      <button class="tab" onclick="authTab('signup')">Register</button>
+      <button class="tab" onclick="authTab('admin')">Admin</button>
+    </div>
+    <div id="at-login">
+      <div class="field"><label>Email</label><input id="li-em" type="email" placeholder="you@example.com"></div>
+      <div class="field"><label>Password</label><input id="li-pw" type="password" placeholder="••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="err hidden" id="li-err"></div>
+      <button class="btn primary full" style="margin-top:6px" onclick="doLogin()">Sign in</button>
+    </div>
+    <div id="at-signup" class="hidden">
+      <div class="field"><label>Full name</label><input id="su-nm" type="text" placeholder="Your name"></div>
+      <div class="field"><label>Email</label><input id="su-em" type="email" placeholder="you@example.com"></div>
+      <div class="field"><label>Password</label><input id="su-pw" type="password" placeholder="Min 6 characters" onkeydown="if(event.key==='Enter')doSignup()"></div>
+      <div class="err hidden" id="su-err"></div>
+      <button class="btn primary full" style="margin-top:6px" onclick="doSignup()">Create account</button>
+    </div>
+    <div id="at-admin" class="hidden">
+      <div class="admin-note"><i class="ti ti-shield"></i>Admin-only area. Users cannot access this tab.</div>
+      <div class="field"><label>Admin password</label><input id="adm-pw" type="password" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')doAdminLogin()"></div>
+      <div class="err hidden" id="adm-err"></div>
+      <button class="btn primary full" style="margin-top:6px" onclick="doAdminLogin()">Enter admin panel</button>
+    </div>
+  </div>
+</div>
+
+<!-- USER DASHBOARD -->
+<div id="s-user" class="hidden">
+  <div class="nav">
+    <div class="nav-brand"><i class="ti ti-database"></i> DataVault</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span id="u-greet" style="font-size:12px;color:#888"></span>
+      <div class="avatar" id="u-av"></div>
+      <button class="btn sm" onclick="logout()" title="Sign out"><i class="ti ti-logout"></i></button>
+    </div>
+  </div>
+  <div class="screen">
+    <div class="metrics-grid" id="u-metrics"></div>
+    <div class="section-hdr">
+      <div class="section-title">My vault</div>
+      <button class="btn" onclick="openAdd()"><i class="ti ti-plus" style="vertical-align:-2px;margin-right:4px"></i>Add item</button>
+    </div>
+    <div id="u-list"></div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="s-admin" class="hidden">
+  <div class="nav">
+    <div class="nav-brand"><i class="ti ti-shield-check"></i> Admin Panel</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="admin-badge">ADMIN</span>
+      <button class="btn sm" onclick="logout()">Exit</button>
+    </div>
+  </div>
+  <div class="screen">
+    <div style="background:#fef9f0;border:1px solid #fed7aa;border-radius:8px;padding:10px 14px;font-size:12px;color:#92400e;margin-bottom:18px;display:flex;align-items:center;gap:8px">
+      <i class="ti ti-eye"></i> Full visibility mode — you can see every user's saved items and all activity.
+    </div>
+    <div class="metrics-grid" id="adm-metrics"></div>
+    <div class="section-title" style="margin-bottom:12px">All users & their saved data</div>
+    <div id="adm-users"></div>
+    <div class="section-title" style="margin:20px 0 10px">Activity log</div>
+    <div class="log-wrap" id="adm-log"></div>
+  </div>
+</div>
+
+<!-- ADD ITEM MODAL -->
+<div class="modal-bg hidden" id="add-modal">
+  <div class="modal">
+    <h2>Add to your vault</h2>
+    <div class="field">
+      <label>Type</label>
+      <select id="it-type" onchange="typeChanged()">
+        <option value="note">📝 Note / text</option>
+        <option value="link">🔗 Link / URL</option>
+        <option value="image">🖼️ Image</option>
+        <option value="file">📎 File (any type)</option>
+        <option value="data">🗃️ Custom data</option>
+      </select>
+    </div>
+    <div class="field"><label>Title</label><input id="it-title" placeholder="Name this item"></div>
+    <div id="it-text-wrap" class="field">
+      <label id="it-text-lbl">Content</label>
+      <textarea id="it-text" placeholder="Write here..."></textarea>
+    </div>
+    <div id="it-link-wrap" class="field hidden">
+      <label>URL</label>
+      <input id="it-url" type="url" placeholder="https://...">
+    </div>
+    <div id="it-img-wrap" class="hidden">
+      <div class="upload-zone" id="img-zone" onclick="document.getElementById('img-inp').click()" ondragover="dov(event,'img-zone')" ondragleave="dlv('img-zone')" ondrop="ddr(event,'image')">
+        <i class="ti ti-photo"></i>
+        <div class="uz-title">Click or drag & drop an image</div>
+        <div class="uz-sub">JPG, PNG, GIF, WebP — max 5 MB</div>
+      </div>
+      <input type="file" id="img-inp" accept="image/*" style="display:none" onchange="fileChosen(event,'image')">
+      <div id="img-prev"></div>
+    </div>
+    <div id="it-file-wrap" class="hidden">
+      <div class="upload-zone" id="file-zone" onclick="document.getElementById('file-inp').click()" ondragover="dov(event,'file-zone')" ondragleave="dlv('file-zone')" ondrop="ddr(event,'file')">
+        <i class="ti ti-paperclip"></i>
+        <div class="uz-title">Click or drag & drop any file</div>
+        <div class="uz-sub">PDF, Word, Excel, ZIP, etc. — max 10 MB</div>
+      </div>
+      <input type="file" id="file-inp" style="display:none" onchange="fileChosen(event,'file')">
+      <div id="file-prev"></div>
+    </div>
+    <div class="err hidden" id="add-err"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeAdd()">Cancel</button>
+      <button class="btn primary" onclick="saveItem()">Save to vault</button>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW ITEM MODAL -->
+<div class="modal-bg hidden" id="view-modal">
+  <div class="modal">
+    <h2 id="vm-title"></h2>
+    <div id="vm-body"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeView()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const ADMIN_PW = "DVault@2024#Secure";
+let db = (() => { try { return JSON.parse(localStorage.getItem('dvault3') || 'null') || {users:{},items:{},log:[]}; } catch(e) { return {users:{},items:{},log:[]}; }})();
+let cur = null, isAdm = false, pendingFile = null;
+
+function save(){ localStorage.setItem('dvault3', JSON.stringify(db)); }
+function addLog(msg){ db.log.unshift({t: new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}), msg}); if(db.log.length>300) db.log=db.log.slice(0,300); save(); }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function show(id){ document.getElementById(id).classList.remove('hidden'); }
+function hide(id){ document.getElementById(id).classList.add('hidden'); }
+function setErr(id,msg){ const e=document.getElementById(id); e.textContent=msg; e.classList.remove('hidden'); }
+function clearErr(id){ document.getElementById(id).classList.add('hidden'); }
+
+function authTab(t){
+  ['login','signup','admin'].forEach((x,i)=>{
+    hide('at-'+x);
+    document.querySelectorAll('.tab')[i].classList.remove('active');
+  });
+  show('at-'+t);
+  document.querySelectorAll('.tab')[['login','signup','admin'].indexOf(t)].classList.add('active');
+}
+
+function doSignup(){
+  const name=document.getElementById('su-nm').value.trim();
+  const email=document.getElementById('su-em').value.trim().toLowerCase();
+  const pass=document.getElementById('su-pw').value;
+  clearErr('su-err');
+  if(!name||!email||!pass){ setErr('su-err','All fields are required.'); return; }
+  if(pass.length<6){ setErr('su-err','Password must be at least 6 characters.'); return; }
+  if(!/\S+@\S+\.\S+/.test(email)){ setErr('su-err','Please enter a valid email.'); return; }
+  if(db.users[email]){ setErr('su-err','This email is already registered.'); return; }
+  db.users[email]={name,email,pass,created:new Date().toISOString()};
+  db.items[email]=[];
+  save();
+  addLog('New user registered: '+name+' ('+email+')');
+  cur=db.users[email];
+  renderUser(); hide('s-auth'); show('s-user');
+}
+
+function doLogin(){
+  const email=document.getElementById('li-em').value.trim().toLowerCase();
+  const pass=document.getElementById('li-pw').value;
+  clearErr('li-err');
+  if(!email||!pass){ setErr('li-err','Please enter email and password.'); return; }
+  const u=db.users[email];
+  if(!u||u.pass!==pass){ setErr('li-err','Incorrect email or password.'); return; }
+  cur=u; addLog('User signed in: '+u.name+' ('+email+')');
+  renderUser(); hide('s-auth'); show('s-user');
+}
+
+function doAdminLogin(){
+  const pw=document.getElementById('adm-pw').value;
+  clearErr('adm-err');
+  if(pw!==ADMIN_PW){ setErr('adm-err','Incorrect admin password.'); return; }
+  isAdm=true; addLog('Admin accessed the control panel');
+  renderAdmin(); hide('s-auth'); show('s-admin');
+}
+
+function logout(){
+  if(cur) addLog('User signed out: '+cur.name);
+  if(isAdm) addLog('Admin exited panel');
+  cur=null; isAdm=false;
+  hide('s-user'); hide('s-admin'); show('s-auth');
+  document.getElementById('li-em').value='';
+  document.getElementById('li-pw').value='';
+}
+
+function renderUser(){
+  const email=cur.email;
+  const initials=cur.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('u-av').textContent=initials;
+  document.getElementById('u-greet').textContent='Hi, '+cur.name.split(' ')[0];
+  const items=db.items[email]||[];
+  const c={note:0,link:0,image:0,file:0,data:0};
+  items.forEach(i=>{ if(c[i.type]!==undefined) c[i.type]++; });
+  document.getElementById('u-metrics').innerHTML=`
+    <div class="metric"><div class="mlabel">Total saved</div><div class="mval">${items.length}</div></div>
+    <div class="metric"><div class="mlabel">Notes</div><div class="mval">${c.note}</div></div>
+    <div class="metric"><div class="mlabel">Images</div><div class="mval">${c.image}</div></div>
+    <div class="metric"><div class="mlabel">Files</div><div class="mval">${c.file+c.link+c.data}</div></div>
+  `;
+  const list=document.getElementById('u-list');
+  if(!items.length){ list.innerHTML='<div class="empty-state"><i class="ti ti-inbox"></i><p>Nothing saved yet.<br>Tap "Add item" to get started.</p></div>'; return; }
+  list.innerHTML=items.map((item,i)=>buildItemRow(item,i,false,null)).join('');
+}
+
+function buildItemRow(item,i,isAdminView,ownerEmail){
+  const icons={note:'ti-note',link:'ti-link',image:'ti-photo',file:'ti-paperclip',data:'ti-code'};
+  const d=new Date(item.created).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'2-digit'});
+  let preview='';
+  if(item.type==='image'&&item.data) preview=`<img src="${item.data}" class="item-img-thumb">`;
+  else if(item.type==='link'&&item.url) preview=`<div class="item-preview"><a href="${esc(item.url)}" style="color:#1d4ed8;font-size:11px">${esc(item.url.substring(0,70))}</a></div>`;
+  else if(item.content) preview=`<div class="item-preview">${esc(item.content.substring(0,120))}${item.content.length>120?'…':''}</div>`;
+  const viewFn=isAdminView?`viewAdminItem('${ownerEmail}',${i})`:`viewUserItem(${i})`;
+  const delFn=isAdminView?`adminDelItem('${ownerEmail}',${i})`:`delItem(${i})`;
+  return `<div class="item-row">
+    <i class="ti ${icons[item.type]||'ti-file'} item-ico"></i>
+    <div class="item-meta">
+      <div class="item-title">${esc(item.title)}</div>
+      <div class="item-sub"><span class="tag ${item.type}">${item.type}</span><span>${d}</span>${item.fileName?'<span>'+esc(item.fileName)+'</span>':''}</div>
+      ${preview}
+    </div>
+    <div class="item-actions">
+      <button class="btn sm" onclick="${viewFn}" title="View full content"><i class="ti ti-eye"></i></button>
+      <button class="btn sm danger" onclick="${delFn}" title="Delete"><i class="ti ti-trash"></i></button>
+    </div>
+  </div>`;
+}
+
+function viewUserItem(i){
+  const item=(db.items[cur.email]||[])[i];
+  if(item) showViewModal(item);
+}
+function viewAdminItem(email,i){
+  const item=(db.items[email]||[])[i];
+  if(item) showViewModal(item);
+}
+
+function showViewModal(item){
+  document.getElementById('vm-title').textContent=item.title;
+  let body=`<div style="margin-bottom:10px"><span class="tag ${item.type}">${item.type}</span>`;
+  body+=` <span style="font-size:11px;color:#aaa;margin-left:6px">${new Date(item.created).toLocaleString('en-IN')}</span></div>`;
+  if(item.type==='image'&&item.data){
+    body+=`<img src="${item.data}" class="vm-image">`;
+  } else if(item.type==='file'&&item.data){
+    body+=`<div class="file-chip"><i class="ti ti-paperclip"></i><span>${esc(item.fileName||'file')}</span><a href="${item.data}" download="${esc(item.fileName||'file')}" class="btn sm" style="margin-left:auto">⬇ Download</a></div>`;
+  } else if(item.type==='link'&&item.url){
+    body+=`<div style="margin-bottom:8px"><a href="${esc(item.url)}" class="vm-link" target="_blank">${esc(item.url)}</a></div>`;
+    if(item.content) body+=`<div class="vm-content">${esc(item.content)}</div>`;
+  } else if(item.content){
+    body+=`<div class="vm-content">${esc(item.content)}</div>`;
+  } else {
+    body+=`<div style="color:#aaa;font-size:13px">No content.</div>`;
+  }
+  document.getElementById('vm-body').innerHTML=body;
+  show('view-modal');
+}
+function closeView(){ hide('view-modal'); }
+
+function delItem(i){
+  if(!confirm('Delete this item?')) return;
+  const item=db.items[cur.email][i];
+  addLog(cur.name+' deleted "'+item.title+'"');
+  db.items[cur.email].splice(i,1);
+  save(); renderUser();
+}
+
+function renderAdmin(){
+  const users=Object.values(db.users);
+  const allItems=Object.values(db.items).flat();
+  const images=allItems.filter(i=>i.type==='image').length;
+  const files=allItems.filter(i=>i.type==='file').length;
+  document.getElementById('adm-metrics').innerHTML=`
+    <div class="metric"><div class="mlabel">Users</div><div class="mval">${users.length}</div></div>
+    <div class="metric"><div class="mlabel">Total items</div><div class="mval">${allItems.length}</div></div>
+    <div class="metric"><div class="mlabel">Images</div><div class="mval">${images}</div></div>
+    <div class="metric"><div class="mlabel">Files</div><div class="mval">${files}</div></div>
+  `;
+  const uDiv=document.getElementById('adm-users');
+  if(!users.length){ uDiv.innerHTML='<div class="empty-state"><i class="ti ti-users"></i><p>No users registered yet.</p></div>'; }
+  else {
+    uDiv.innerHTML=users.map(u=>{
+      const items=db.items[u.email]||[];
+      const initials=u.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+      const joined=new Date(u.created).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+      const itemsHtml=items.length===0
+        ? '<div style="font-size:12px;color:#bbb;padding:6px 0">No items saved yet.</div>'
+        : items.map((item,i)=>{
+            const icons={note:'ti-note',link:'ti-link',image:'ti-photo',file:'ti-paperclip',data:'ti-code'};
+            const d=new Date(item.created).toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+            let prev='';
+            if(item.type==='image'&&item.data) prev=`<img src="${item.data}" style="height:32px;border-radius:4px;margin-top:3px;display:block">`;
+            else if(item.type==='link'&&item.url) prev=`<span style="font-size:10px;color:#1d4ed8">${esc(item.url.substring(0,55))}</span>`;
+            else if(item.content) prev=`<span style="font-size:10px;color:#888">${esc(item.content.substring(0,80))}</span>`;
+            return `<div class="adm-item-row">
+              <i class="ti ${icons[item.type]||'ti-file'}" style="font-size:14px;color:#aaa;margin-top:2px;flex-shrink:0"></i>
+              <div style="flex:1;min-width:0">
+                <div style="font-size:12px;font-weight:500">${esc(item.title)}</div>
+                <div style="font-size:10px;color:#aaa;margin-top:1px"><span class="tag ${item.type}">${item.type}</span> · ${d}${item.fileName?' · <i>'+esc(item.fileName)+'</i>':''}</div>
+                <div style="margin-top:2px">${prev}</div>
+              </div>
+              <div style="display:flex;gap:4px;flex-shrink:0">
+                <button class="btn sm" onclick="viewAdminItem('${u.email}',${i})" title="View"><i class="ti ti-eye" style="font-size:12px"></i></button>
+                <button class="btn sm danger" onclick="adminDelItem('${u.email}',${i})" title="Delete"><i class="ti ti-trash" style="font-size:12px"></i></button>
+              </div>
+            </div>`;
+          }).join('');
+      return `<div class="user-section">
+        <div class="user-hdr" onclick="toggleUser(this)">
+          <div class="avatar">${initials}</div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:500">${esc(u.name)}</div>
+            <div style="font-size:11px;color:#888">${esc(u.email)} · joined ${joined}</div>
+          </div>
+          <span style="font-size:12px;color:#888;margin-right:4px">${items.length} item${items.length!==1?'s':''}</span>
+          <i class="ti ti-chevron-down" style="font-size:14px;color:#aaa;transition:transform 0.2s"></i>
+          <button class="btn sm danger" onclick="event.stopPropagation();adminDelUser('${u.email}')" style="margin-left:8px" title="Delete user"><i class="ti ti-user-x" style="font-size:12px"></i></button>
+        </div>
+        <div class="user-body">
+          <div style="font-size:10px;font-weight:600;color:#bbb;letter-spacing:0.8px;margin-bottom:8px">SAVED ITEMS</div>
+          ${itemsHtml}
+        </div>
+      </div>`;
+    }).join('');
+  }
+  const logDiv=document.getElementById('adm-log');
+  logDiv.innerHTML=db.log.length
+    ? db.log.map(e=>`<div class="log-entry"><span class="log-time">${e.t}</span><span style="color:#555">${esc(e.msg)}</span></div>`).join('')
+    : '<span style="font-size:12px;color:#bbb">No activity logged yet.</span>';
+}
+
+function toggleUser(hdr){
+  const body=hdr.nextElementSibling;
+  body.classList.toggle('open');
+  const ico=hdr.querySelector('.ti-chevron-down');
+  if(ico) ico.style.transform=body.classList.contains('open')?'rotate(180deg)':'';
+}
+
+function adminDelItem(email,i){
+  if(!confirm('Delete this item?')) return;
+  const item=(db.items[email]||[])[i];
+  if(!item) return;
+  addLog('Admin deleted "'+item.title+'" from '+email);
+  db.items[email].splice(i,1);
+  save(); renderAdmin();
+}
+
+function adminDelUser(email){
+  if(!confirm('Delete user '+email+' and ALL their saved data?')) return;
+  const name=db.users[email]?.name||email;
+  delete db.users[email]; delete db.items[email];
+  addLog('Admin deleted user account: '+name+' ('+email+')');
+  save(); renderAdmin();
+}
+
+// ADD MODAL
+function openAdd(){
+  pendingFile=null;
+  ['it-title','it-text','it-url'].forEach(id=>document.getElementById(id).value='');
+  ['img-prev','file-prev'].forEach(id=>document.getElementById(id).innerHTML='');
+  document.getElementById('it-type').value='note';
+  typeChanged(); clearErr('add-err'); show('add-modal');
+}
+function closeAdd(){ hide('add-modal'); pendingFile=null; }
+
+function typeChanged(){
+  const t=document.getElementById('it-type').value;
+  hide('it-text-wrap'); hide('it-link-wrap'); hide('it-img-wrap'); hide('it-file-wrap'); pendingFile=null;
+  if(t==='note'){ show('it-text-wrap'); document.getElementById('it-text-lbl').textContent='Content'; document.getElementById('it-text').placeholder='Write your note...'; }
+  else if(t==='data'){ show('it-text-wrap'); document.getElementById('it-text-lbl').textContent='Data (any format)'; document.getElementById('it-text').placeholder='{"key":"value"} or anything structured...'; }
+  else if(t==='link'){ show('it-link-wrap'); show('it-text-wrap'); document.getElementById('it-text-lbl').textContent='Description (optional)'; document.getElementById('it-text').placeholder='Optional notes about this link...'; }
+  else if(t==='image'){ show('it-img-wrap'); }
+  else if(t==='file'){ show('it-file-wrap'); }
+}
+
+function dov(e,z){ e.preventDefault(); document.getElementById(z).classList.add('drag'); }
+function dlv(z){ document.getElementById(z).classList.remove('drag'); }
+function ddr(e,type){ e.preventDefault(); dlv(type==='image'?'img-zone':'file-zone'); const f=e.dataTransfer.files[0]; if(f) processFile(f,type); }
+function fileChosen(e,type){ const f=e.target.files[0]; if(f) processFile(f,type); }
+
+function processFile(f,type){
+  const maxMB=type==='image'?5:10;
+  if(f.size>maxMB*1024*1024){ setErr('add-err','File too large. Max '+maxMB+' MB.'); return; }
+  clearErr('add-err');
+  const r=new FileReader();
+  r.onload=function(e){
+    pendingFile={data:e.target.result,name:f.name,mimeType:f.type};
+    const title=document.getElementById('it-title');
+    if(!title.value) title.value=f.name.replace(/\.[^.]+$/,'');
+    if(type==='image'){
+      document.getElementById('img-prev').innerHTML=`<img src="${e.target.result}" style="max-width:100%;max-height:120px;border-radius:8px;margin-top:8px;display:block"><p style="font-size:11px;color:#888;margin-top:4px">${esc(f.name)} — ${(f.size/1024).toFixed(1)} KB</p>`;
+    } else {
+      document.getElementById('file-prev').innerHTML=`<div class="file-chip"><i class="ti ti-paperclip"></i><span>${esc(f.name)}</span><span style="margin-left:auto;color:#aaa;font-size:11px">${(f.size/1024).toFixed(1)} KB</span></div>`;
+    }
+  };
+  r.readAsDataURL(f);
+}
+
+function saveItem(){
+  const type=document.getElementById('it-type').value;
+  const title=document.getElementById('it-title').value.trim();
+  clearErr('add-err');
+  if(!title){ setErr('add-err','Please enter a title.'); return; }
+  const item={type,title,created:new Date().toISOString()};
+  if(type==='note'||type==='data'){ item.content=document.getElementById('it-text').value.trim(); }
+  else if(type==='link'){
+    const url=document.getElementById('it-url').value.trim();
+    if(!url){ setErr('add-err','Please enter a URL.'); return; }
+    item.url=url; item.content=document.getElementById('it-text').value.trim();
+  } else {
+    if(!pendingFile){ setErr('add-err','Please select a file to upload.'); return; }
+    item.data=pendingFile.data; item.fileName=pendingFile.name; item.mimeType=pendingFile.mimeType;
+  }
+  if(!db.items[cur.email]) db.items[cur.email]=[];
+  db.items[cur.email].unshift(item);
+  save();
+  addLog(cur.name+' saved a '+type+': "'+title+'"');
+  closeAdd(); renderUser();
+}
+</script>
+</div>
+</body>
+</html>
